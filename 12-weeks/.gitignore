@@ -1,0 +1,49 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+*.vsidx
+*.vspscc
+*.vssscc
+
+# Visual Studio Code
+.vscode/
+
+# NuGet packages
+*.nupkg
+# The packages folder can be ignored if you use PackageReference
+**/packages/*
+!**/packages/build/
+!**/packages/repositories.config
+
+# Dotnet CLI
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nuget.dgspec.json
+*.nuget.g.props
+project.assets.json
+project.nuget.cache
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Others
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Local environment files
+.env
