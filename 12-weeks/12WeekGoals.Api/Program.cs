@@ -12,14 +12,17 @@ builder.Services.AddScoped<IGoalService, GoalService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Habilitar Swagger también en producción para testing
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// Comentar HTTPS redirect para Railway
+// app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+// Agregar una ruta de prueba
+app.MapGet("/", () => "12 Week Goals API is running!");
+app.MapGet("/health", () => "OK");
 
 app.Run();
