@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\12WeekGoals.Api.props" />
+</Project>

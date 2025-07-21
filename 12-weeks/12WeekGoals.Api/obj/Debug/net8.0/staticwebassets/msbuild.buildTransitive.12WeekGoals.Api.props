@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\12WeekGoals.Api.props" />
+</Project>

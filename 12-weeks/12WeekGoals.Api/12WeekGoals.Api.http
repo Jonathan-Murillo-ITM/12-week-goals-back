@@ -1,0 +1,6 @@
+@_12WeekGoals.Api_HostAddress = http://localhost:5194
+
+GET {{_12WeekGoals.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

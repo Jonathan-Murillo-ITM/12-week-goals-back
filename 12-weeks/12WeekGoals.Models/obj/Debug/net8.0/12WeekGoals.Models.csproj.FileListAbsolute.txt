@@ -1,0 +1,11 @@
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\bin\Debug\net8.0\12WeekGoals.Models.deps.json
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\bin\Debug\net8.0\12WeekGoals.Models.dll
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\bin\Debug\net8.0\12WeekGoals.Models.pdb
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\12WeekGoals.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\12WeekGoals.Models.AssemblyInfoInputs.cache
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\12WeekGoals.Models.AssemblyInfo.cs
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\12WeekGoals.Models.csproj.CoreCompileInputs.cache
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\12WeekGoals.Models.dll
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\refint\12WeekGoals.Models.dll
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\12WeekGoals.Models.pdb
+C:\Users\jonat\source\repos\12-weeks\12WeekGoals.Models\obj\Debug\net8.0\ref\12WeekGoals.Models.dll
