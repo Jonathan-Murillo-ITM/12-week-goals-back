@@ -8,6 +8,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+            "https://jonathan-murillo-itm.github.io",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:4200"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
 // Configure MicrosoftGraph settings
 builder.Services.Configure<MicrosoftGraphSettings>(
     builder.Configuration.GetSection("MicrosoftGraph"));
@@ -17,6 +34,9 @@ builder.Services.AddScoped<IMicrosoftGraphService, MicrosoftGraphService>();
 builder.Services.AddScoped<IGoalService, GoalService>();
 
 var app = builder.Build();
+
+// Use CORS
+app.UseCors("AllowFrontend");
 
 // Habilitar Swagger también en producción para testing
 app.UseSwagger();
