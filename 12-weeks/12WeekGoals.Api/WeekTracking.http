@@ -1,0 +1,9 @@
+### Obtener URL de autorización para ver la semana actual
+GET {{12WeekGoals.Api_HostAddress}}/api/goals/auth-week
+
+###
+
+### Obtener la semana actual (reemplazar CODE_FROM_CALLBACK con el código real)
+GET {{12WeekGoals.Api_HostAddress}}/api/goals/current-week?code=CODE_FROM_CALLBACK
+
+###

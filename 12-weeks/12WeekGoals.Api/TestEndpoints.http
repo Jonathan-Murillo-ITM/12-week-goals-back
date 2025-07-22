@@ -1,0 +1,43 @@
+### Pruebas de API - 12 Week Goals
+
+### 1. Obtener URL de autorización para consultar semana actual
+GET http://localhost:5194/api/goals/auth-week
+
+### 2. Obtener semana actual (reemplaza YOUR_CODE_HERE con el código del paso anterior)
+GET http://localhost:5194/api/goals/current-week?code=YOUR_CODE_HERE
+
+### 3. Crear Goals (opcional - requiere autorización después)
+POST http://localhost:5194/api/goals/create
+Content-Type: application/json
+
+{
+    "goalGroupName": "Mis Metas Q3 2025",
+    "startDate": "2025-07-21T00:00:00Z",
+    "goals": [
+        {
+            "name": "Fitness Goals",
+            "tasks": [
+                "Correr 3 veces por semana",
+                "Hacer ejercicio de fuerza 2 veces",
+                "Caminar 10,000 pasos diarios",
+                "Meditar 15 minutos diarios"
+            ]
+        }
+    ]
+}
+
+### 4. Callback después de crear goals (reemplaza YOUR_CODE_HERE)
+GET http://localhost:5194/api/goals/callbackCreate?code=YOUR_CODE_HERE
+
+### INSTRUCCIONES PARA USAR:
+# 
+# Para consultar en qué semana estás:
+# 1. Ejecuta el endpoint 1 (/auth-week)
+# 2. Copia la URL que recibes y ábrela en tu navegador
+# 3. Autoriza la aplicación con tu cuenta de Microsoft
+# 4. Cuando te redirija a una página que no carga, copia el CÓDIGO de la URL
+#    (ejemplo: si la URL es http://localhost:8000/callback?code=ABCD123, copia ABCD123)
+# 5. Reemplaza YOUR_CODE_HERE en el endpoint 2 con ese código
+# 6. Ejecuta el endpoint 2 (/current-week) para ver tu semana actual
+#
+# ¡Eso es todo!

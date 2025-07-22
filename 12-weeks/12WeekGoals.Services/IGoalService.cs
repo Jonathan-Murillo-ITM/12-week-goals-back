@@ -6,5 +6,8 @@ namespace _12WeekGoals.Services.Interfaces
     {
         Task<string> CreateGoalsAsync(GoalGroup goalGroup);
         Task<bool> ProcessGoalCreationAsync(string code, GoalGroup goalGroup);
+        Task<string> GetAuthorizationUrlForWeekAsync();
+        Task<int> GetCurrentWeekAsync(string code);
+        Task<object> DebugTasksAsync(string code);
     }
 }

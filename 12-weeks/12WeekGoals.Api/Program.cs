@@ -1,10 +1,16 @@
 using _12WeekGoals.Services;
 using _12WeekGoals.Services.Interfaces;
+using _12WeekGoals.Services.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Configure MicrosoftGraph settings
+builder.Services.Configure<MicrosoftGraphSettings>(
+    builder.Configuration.GetSection("MicrosoftGraph"));
 
 // Dependency Injection
 builder.Services.AddScoped<IMicrosoftGraphService, MicrosoftGraphService>();
@@ -23,6 +29,5 @@ app.MapControllers();
 
 // Agregar una ruta de prueba
 app.MapGet("/", () => "12 Week Goals API is running!");
-app.MapGet("/health", () => "OK");
 
 app.Run();
