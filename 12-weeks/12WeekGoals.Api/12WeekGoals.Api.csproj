@@ -9,6 +9,8 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Graph" Version="5.56.0" />
 		<PackageReference Include="Microsoft.Graph.Auth" Version="1.0.0-preview.7" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.34.0" />
+		<PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="138.0.7204.16800" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
 

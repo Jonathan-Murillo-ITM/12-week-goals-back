@@ -3,6 +3,7 @@ using _12WeekGoals.Services.Interfaces;
 using _12WeekGoals.Domain.Models;
 using _12WeekGoals.Services.Configuration;
 using Microsoft.Extensions.Options;
+using System.Text.Json.Serialization;
 
 namespace _12WeekGoals.Services
 {
@@ -17,51 +18,75 @@ namespace _12WeekGoals.Services
 
         public Task<string> GetAuthorizationUrlAsync()
         {
-            var scopes = "Tasks.ReadWrite User.Read";
-            var authUrl = $"https://login.live.com/oauth20_authorize.srf?" +
+            var scopes = "https://graph.microsoft.com/Tasks.ReadWrite https://graph.microsoft.com/User.Read";
+            var authUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?" +
                          $"client_id={_settings.ClientId}&" +
                          $"response_type=code&" +
                          $"redirect_uri={Uri.EscapeDataString(_settings.RedirectUri)}&" +
-                         $"scope={Uri.EscapeDataString(scopes)}";
+                         $"scope={Uri.EscapeDataString(scopes)}&" +
+                         $"response_mode=query";
 
             return Task.FromResult(authUrl);
         }
 
         public async Task<string> ExchangeCodeForTokenAsync(string code)
         {
-            using var httpClient = new HttpClient();
-            var tokenUrl = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
-
-            var parameters = new Dictionary<string, string>
+            try
             {
-                {"grant_type", "authorization_code"},
-                {"code", code},
-                {"redirect_uri", _settings.RedirectUri},
-                {"client_id", _settings.ClientId},
-                {"scope", "Tasks.ReadWrite User.Read"}
-            };
+                using var httpClient = new HttpClient();
+                var tokenUrl = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
 
-            var content = new FormUrlEncodedContent(parameters);
-            var response = await httpClient.PostAsync(tokenUrl, content);
-            var responseContent = await response.Content.ReadAsStringAsync();
+                var parameters = new Dictionary<string, string>
+                {
+                    {"grant_type", "authorization_code"},
+                    {"code", code},
+                    {"redirect_uri", _settings.RedirectUri},
+                    {"client_id", _settings.ClientId}
+                };
 
-            if (response.IsSuccessStatusCode)
-            {
-                var tokenData = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(responseContent);
-                return tokenData?.AccessToken ?? throw new Exception("No access token received");
-            }
+                // Agregar client_secret si está configurado
+                if (!string.IsNullOrEmpty(_settings.ClientSecret))
+                {
+                    parameters.Add("client_secret", _settings.ClientSecret);
+                }
 
-            // Log detallado del error para debugging
-            var debugInfo = $@"
-Error Details:
-- Status: {response.StatusCode}
+                var content = new FormUrlEncodedContent(parameters);
+                var response = await httpClient.PostAsync(tokenUrl, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var tokenData = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(responseContent);
+                    var accessToken = tokenData?.AccessToken;
+                    
+                    if (string.IsNullOrEmpty(accessToken))
+                    {
+                        throw new Exception($"No access token received in response JSON. Response: {responseContent}");
+                    }
+                    
+                    return accessToken;
+                }
+
+                // Si no es exitoso, construir error detallado
+                var debugInfo = $@"
+Token Exchange Failed:
+- Status: {response.StatusCode} ({(int)response.StatusCode})
 - URL: {tokenUrl}
 - Client ID: {_settings.ClientId}
+- Has Client Secret: {!string.IsNullOrEmpty(_settings.ClientSecret)}
 - Redirect URI: {_settings.RedirectUri}
+- Code (first 10 chars): {code.Substring(0, Math.Min(code.Length, 10))}...
 - Response: {responseContent}
-- Request Parameters: {string.Join(", ", parameters.Select(p => $"{p.Key}={p.Value.Substring(0, Math.Min(p.Value.Length, 50))}..."))}";
+- Content-Type: {response.Content.Headers.ContentType}
+- Parameters sent: {string.Join(", ", parameters.Select(p => $"{p.Key}={p.Value.Substring(0, Math.Min(p.Value.Length, 20))}..."))}";
 
-            throw new Exception($"Failed to get access token: {response.StatusCode}. Debug info: {debugInfo}");
+                throw new Exception($"Failed to exchange code for token: {response.StatusCode}. Details: {debugInfo}");
+            }
+            catch (Exception ex)
+            {
+                // Re-lanzar con contexto adicional
+                throw new Exception($"Error in ExchangeCodeForTokenAsync: {ex.Message}", ex);
+            }
         }
 
         public async Task<string> CreateTaskListAsync(string accessToken, string listName)
@@ -164,7 +189,17 @@ Error Details:
     // Clases auxiliares para deserialización
     public class TokenResponse
     {
+        [JsonPropertyName("access_token")]
         public string AccessToken { get; set; } = string.Empty;
+        
+        [JsonPropertyName("token_type")]
+        public string TokenType { get; set; } = string.Empty;
+        
+        [JsonPropertyName("expires_in")]
+        public int ExpiresIn { get; set; }
+        
+        [JsonPropertyName("scope")]
+        public string Scope { get; set; } = string.Empty;
     }
 
     public class TaskListResponse
