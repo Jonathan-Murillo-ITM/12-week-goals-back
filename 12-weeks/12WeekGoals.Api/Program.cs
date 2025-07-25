@@ -32,7 +32,6 @@ builder.Services.Configure<MicrosoftGraphSettings>(
 // Dependency Injection
 builder.Services.AddScoped<IMicrosoftGraphService, MicrosoftGraphService>();
 builder.Services.AddScoped<IGoalService, GoalService>();
-builder.Services.AddScoped<IAutomatedAuthService, AutomatedAuthService>();
 builder.Services.AddSingleton<ITokenCacheService, TokenCacheService>();
 
 var app = builder.Build();

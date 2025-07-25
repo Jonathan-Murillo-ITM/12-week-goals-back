@@ -278,20 +278,47 @@ public class GoalsController : ControllerBase
         }
     }
 
-    [HttpPost("get-lists-with-browser-and-cache")]
-    public async Task<IActionResult> GetListsWithBrowserAndCache([FromBody] AutoLoginRequest request)
+    [HttpPost("start-auth-flow")]
+    public async Task<IActionResult> StartAuthFlow()
     {
-        if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+        try
+        {
+            var authUrl = await _goalService.GetAuthorizationUrlForWeekAsync();
+            return Ok(new 
+            { 
+                success = true,
+                authUrl,
+                message = "Abre esta URL en tu navegador (Safari, Chrome, etc.)",
+                instructions = new[]
+                {
+                    "1. Copia la authUrl de abajo",
+                    "2. Ábrela en cualquier navegador (Safari, Chrome, Edge, etc.)",
+                    "3. Completa la autorización con tu cuenta Microsoft",
+                    "4. Cuando te redirija, copia el código de la URL",
+                    "5. Llama a /api/goals/complete-auth-flow con ese código"
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("complete-auth-flow")]
+    public async Task<IActionResult> CompleteAuthFlow([FromBody] AuthCodeRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Code))
         {
             return BadRequest(new 
             { 
-                error = "Se requieren username y password"
+                error = "Se requiere el código de autorización"
             });
         }
 
         try
         {
-            var result = await _goalService.GetListsWithVisibleBrowserAndCacheAsync(request.Username, request.Password);
+            var result = await _goalService.GetListsWithCodeAndCacheAsync(request.Code);
             return Ok(result);
         }
         catch (Exception ex)

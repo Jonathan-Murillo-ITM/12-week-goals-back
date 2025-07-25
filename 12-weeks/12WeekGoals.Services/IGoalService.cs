@@ -14,7 +14,7 @@ namespace _12WeekGoals.Services.Interfaces
         Task<object> GetAllTaskListsWithTasksAsync(string code);
         Task<dynamic> GetMyListsSimpleAsync();
         Task<dynamic> GetListsNamesOnlyAsync(string code);
-        Task<dynamic> GetListsWithVisibleBrowserAndCacheAsync(string username, string password);
         Task<dynamic> GetListsWithCachedTokenAsync();
+        Task<dynamic> GetListsWithCodeAndCacheAsync(string code);
     }
 }

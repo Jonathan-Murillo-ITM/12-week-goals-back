@@ -6,13 +6,11 @@ namespace _12WeekGoals.Services
     public class GoalService : IGoalService
     {
         private readonly IMicrosoftGraphService _graphService;
-        private readonly IAutomatedAuthService _automatedAuthService;
         private readonly ITokenCacheService _tokenCacheService;
 
-        public GoalService(IMicrosoftGraphService graphService, IAutomatedAuthService automatedAuthService, ITokenCacheService tokenCacheService)
+        public GoalService(IMicrosoftGraphService graphService, ITokenCacheService tokenCacheService)
         {
             _graphService = graphService;
-            _automatedAuthService = automatedAuthService;
             _tokenCacheService = tokenCacheService;
         }
 
@@ -577,6 +575,62 @@ namespace _12WeekGoals.Services
             }
         }
 
+        public async Task<dynamic> GetListsWithCodeAndCacheAsync(string code)
+        {
+            try
+            {
+                // Obtener token usando el código
+                var accessToken = await _graphService.ExchangeCodeForTokenAsync(code);
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    throw new Exception("No se pudo obtener token de acceso con el código proporcionado");
+                }
+
+                // Guardar el token en cache para uso futuro
+                await _tokenCacheService.SaveTokenAsync(accessToken);
+
+                // Obtener las listas
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+                var response = await httpClient.GetStringAsync("https://graph.microsoft.com/v1.0/me/todo/lists");
+                
+                var jsonDocument = System.Text.Json.JsonDocument.Parse(response);
+                var lists = jsonDocument.RootElement.GetProperty("value");
+                
+                var listNames = new List<string>();
+                foreach (var list in lists.EnumerateArray())
+                {
+                    if (list.TryGetProperty("displayName", out var nameProperty))
+                    {
+                        var name = nameProperty.GetString();
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            listNames.Add(name);
+                        }
+                    }
+                }
+
+                return new { 
+                    success = true,
+                    totalLists = listNames.Count,
+                    listNames = listNames,
+                    source = "auth_code_with_cache",
+                    tokenCached = true,
+                    message = "Listas obtenidas usando código de autorización y token guardado para próximas veces"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new { 
+                    success = false,
+                    error = ex.Message,
+                    source = "auth_code_error"
+                };
+            }
+        }
+
         public async Task<dynamic> GetListsWithCachedTokenAsync()
         {
             try
@@ -637,63 +691,6 @@ namespace _12WeekGoals.Services
                     error = ex.Message,
                     requiresAuth = true,
                     source = "cache_error"
-                };
-            }
-        }
-
-        public async Task<dynamic> GetListsWithVisibleBrowserAndCacheAsync(string username, string password)
-        {
-            try
-            {
-                // Obtener token usando navegador visible
-                var accessToken = await _automatedAuthService.GetAccessTokenWithVisibleBrowserAsync(username, password);
-                
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    throw new Exception("No se pudo obtener token de acceso");
-                }
-
-                // Guardar el token en cache para uso futuro
-                await _tokenCacheService.SaveTokenAsync(accessToken);
-
-                // Obtener las listas
-                using var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Authorization = 
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-                var response = await httpClient.GetStringAsync("https://graph.microsoft.com/v1.0/me/todo/lists");
-                
-                var jsonDocument = System.Text.Json.JsonDocument.Parse(response);
-                var lists = jsonDocument.RootElement.GetProperty("value");
-                
-                var listNames = new List<string>();
-                foreach (var list in lists.EnumerateArray())
-                {
-                    if (list.TryGetProperty("displayName", out var nameProperty))
-                    {
-                        var name = nameProperty.GetString();
-                        if (!string.IsNullOrEmpty(name))
-                        {
-                            listNames.Add(name);
-                        }
-                    }
-                }
-
-                return new { 
-                    success = true,
-                    totalLists = listNames.Count,
-                    listNames = listNames,
-                    source = "visible_browser_with_cache",
-                    tokenCached = true,
-                    message = "Listas obtenidas y token guardado para próximas veces"
-                };
-            }
-            catch (Exception ex)
-            {
-                return new { 
-                    success = false,
-                    error = ex.Message,
-                    source = "visible_browser_error"
                 };
             }
         }
